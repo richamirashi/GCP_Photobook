@@ -1,0 +1,36 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+    <!-- Display Album -->
+
+    <div class="album text-muted">
+      <div class="container">
+
+        <div class="row">
+
+    {% for image_entity in image_entities %}
+      <div class="card">
+      <img src="{{image_entity['image_public_url']}}" alt="{{image_entity['blob_name']}}" height=280>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><strong>Photographer Name:</strong> {{image_entity['name']}}</li>
+        <li class="list-group-item"><strong>Location:</strong> {{image_entity['location']}} </li>
+        <li class="list-group-item"><strong>Dated:</strong> {{image_entity['timestamp']}}</li>
+        <li class="list-group-item"><strong>Labels:</strong> {{image_entity['labels']}}</li>
+      </ul>
+      <div class="card-body">
+        <a href="/edit/{{image_entity['blob_name']}}" class="card-link"><span class="badge badge-primary">Edit</span></a>
+        <a href="/delete/{{image_entity['blob_name']}}" class="card-link"><span class="badge badge-primary">Delete</span></a>
+      </div>
+      </div>
+      {% else %}
+      <p>No photos found</p>
+    {% endfor %}
+
+        </div>
+
+      </div>
+    </div>
+
+{% endblock %}
