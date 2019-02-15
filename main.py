@@ -11,7 +11,7 @@ from flask import Flask, redirect, render_template, request
 from google.cloud import datastore
 from google.cloud import storage
 
-# Clobal Variables
+# Global Variables
 CLOUD_STORAGE_BUCKET = os.environ.get('CLOUD_STORAGE_BUCKET')
 
 # The kind for the new entity.
@@ -24,22 +24,22 @@ app = Flask(__name__)
 
 @app.route('/')
 def view_all():
-    # Create a Cloud Datastore client.
+    # Create a Cloud Datastore client
     datastore_client = datastore.Client()
 
-    # Use the Cloud Datastore client to fetch information from Datastore about each photo.
+    # Use the Cloud Datastore client to fetch information from Datastore for each photo
     query = datastore_client.query(kind=KIND)
     image_entities = list(query.fetch())
 
-    # Return a Jinja2 HTML template and pass in image_entities as a parameter.
+    # Return a Jinja2 HTML template and pass in image_entities as a parameter
     return render_template('view_all.html', image_entities=image_entities)
 
 @app.route('/categories/<category_name>')
 def categories_view(category_name):
-    # Create a Cloud Datastore client.
+    # Create a Cloud Datastore client
     datastore_client = datastore.Client()
 
-    # Use the Cloud Datastore client to fetch information from Datastore about each photo.
+    # Use the Cloud Datastore client to fetch information from Datastore for each photo
     query = datastore_client.query(kind=KIND)
     image_entities = list(query.fetch())
 
@@ -70,27 +70,27 @@ def categories_view(category_name):
                 result_list.append(entity)
     
 
-    # Return a Jinja2 HTML template and pass in image_entities as a parameter.
+    # Return a Jinja2 HTML template and pass in image_entities as a parameter
     return render_template('view_all.html', image_entities=result_list)
 
 
 def upload_to_cloud_storage(photo):
-    # Create a Cloud Storage client.
+    # Create a Cloud Storage client
     storage_client = storage.Client()
 
-    # Get the bucket that the file will be uploaded to.
+    # Get the bucket that the file will be uploaded to
     bucket = storage_client.get_bucket(CLOUD_STORAGE_BUCKET)
 
-    # Create a new blob and upload the file's content.
+    # Create a new blob and upload the file's content
     uuid_name = str(uuid.uuid4()).replace('-','')
     blob = bucket.blob(uuid_name)
     blob.upload_from_string(
             photo.read(), content_type=photo.content_type)
 
-    # Make the blob publicly viewable.
+    # Make the blob publicly viewable
     blob.make_public()
 
-    # Use the Cloud Vision client to detect labels.
+    # Use the Cloud Vision client to detect labels
     source_uri = 'https://storage.googleapis.com/{}/{}'.format(CLOUD_STORAGE_BUCKET, blob.name)
     labels = detect_labels(source_uri)
     
@@ -105,13 +105,13 @@ def upload_photo():
     photo = request.files['file']
     blob, labels = upload_to_cloud_storage(photo) 
     
-    # Create a Cloud Datastore client.
+    # Create a Cloud Datastore client
     datastore_client = datastore.Client()
 
-    # The name/ID for the new entity.
+    # The name/ID for the new entity
     name = blob.name
 
-    # Create the Cloud Datastore key for the new entity.
+    # Create the Cloud Datastore key for the new entity
     key = datastore_client.key(KIND, name)
 
     # Construct the new entity using the key. Set dictionary values for entity
@@ -124,35 +124,35 @@ def upload_photo():
     entity['image_public_url'] = blob.public_url
     entity['labels'] = '{}, {}'.format(','.join(labels), request.form['labels'])
 
-    # Save the new entity to Datastore.
+    # Save the new entity to Datastore
     datastore_client.put(entity)
 
-    # Redirect to the home page.
+    # Redirect to the home page
     return redirect('/')
 
 # Navigates to the upload.html page to add and upload the photo
 @app.route('/upload.html')
 def upload():
-    # Return a Jinja2 HTML template.
+    # Return a Jinja2 HTML template
     return render_template('upload.html')
 
 # Navigates to the edit.html page and pre loads data from datastore
 @app.route('/edit/<id>')
 def pre_edit(id):
-    # Create a Cloud Datastore client.
+    # Create a Cloud Datastore client
     datastore_client = datastore.Client()
 
-    # Use the Cloud Datastore client to fetch information about the photo.
+    # Use the Cloud Datastore client to fetch information about the photo
     key = datastore_client.key(KIND, id)
     entity = datastore_client.get(key)
     
-    # Return a Jinja2 HTML template.
+    # Return a Jinja2 HTML template
     return render_template('edit.html', entity=entity)
 
-# Uppdted the photo details, and the navigates to home page.
+# Updates the photo details, and then navigates to home page
 @app.route('/post_edit/<id>', methods=['GET', 'POST'])
 def post_edit(id):
-    # Create a Cloud Datastore client.
+    # Create a Cloud Datastore client
     datastore_client = datastore.Client()
 
     # set data
@@ -173,14 +173,14 @@ def post_edit(id):
     # Update data
     datastore_client.put(entity)
     
-    # Redirect to the home page.
+    # Redirect to the home page
     return redirect('/')
 
 
-# Delete photo.
+# Delete photo
 @app.route('/delete/<id>')
 def delete(id):
-    # Create a Cloud Datastore client.
+    # Create a Cloud Datastore client
     datastore_client = datastore.Client()
 
     # Get data handler
@@ -189,7 +189,7 @@ def delete(id):
     # Delete
     datastore_client.delete(key)
     
-    # Redirect to the home page.
+    # Redirect to the home page
     return redirect('/')
 
 
