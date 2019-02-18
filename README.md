@@ -3,6 +3,8 @@
 The Photobook is a web application that runs on the [Google Cloud Platform (GCP)](https://cloud.google.com/) to manage
 and automatically label the images in the photobook.
 
+![photobook](https://github.com/richamirashi/GCP_Photobook/blob/master/static/img/photobook.JPG)
+
 The web interface has following features:
 - **Upload a photo:** The user types in the metadata of a photo (name of the photographer, location of the photo, and date of the photo taken) and then uploads the image. After a photo is uploaded, the [Google’s Cloud Vision API](https://cloud.google.com/vision/) labels each photo. Such labels are then used
 to organize the photobook into four categories:
